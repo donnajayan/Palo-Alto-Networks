@@ -1,0 +1,178 @@
+body:not(.is-responsive-phone):not(.is-responsive-tablet) .horizontal-hamburger-left-v2 .children .nav-item:last-child div a.nav-item-link {
+    display: none !important;
+}
+
+#splash-container.is-responsive-tablet .nav-expand, .nav-bg{
+    backdrop-filter: blur(12px) !important;
+    background: rgba(2, 2, 2, 0.85) !important;
+}
+
+@media only screen and (max-width: 767px) {
+    #splash-container.is-responsive-phone #main-canvas .home-page-bg-banner-container, #splash-container.is-responsive-tablet #main-canvas .home-page-bg-banner-container{
+    padding-left: 6% !important;
+    padding-right: 6% !important;
+    padding-top: 10% !important;
+    padding-bottom: 10% !important;
+    min-height: 35vh !important;
+    margin-bottom: 2rem!important;
+    }
+     #splash-container.is-responsive-phone #main-canvas .home-page-bg-banner-container .home-page-bg-banner, #splash-container.is-responsive-tablet #main-canvas .home-page-bg-banner-container .home-page-bg-banner{
+         background-attachment: scroll !important;
+        background-position: center center !important;
+        background-size: auto 100% !important;
+        background-repeat: no-repeat !important;
+     }
+}
+
+@media only screen and (max-width: 667px) {
+    #splash-container.is-responsive-phone #main-canvas .home-page-bg-banner-container, #splash-container.is-responsive-tablet #main-canvas .home-page-bg-banner-container{
+    padding-left: 6% !important;
+    padding-right: 6% !important;
+    padding-top: 15% !important;
+    padding-bottom: 15% !important;
+    min-height: 30vh !important;
+    }
+}
+
+@media only screen and (min-width: 800px) and (max-width: 991.98px) {
+    #splash-container #main-canvas .home-page-bg-banner-container, #splash-container #main-canvas .home-page-bg-banner-container{
+        margin-left: 0% !important;
+        margin-right: 0% !important;
+        margin-bottom: 2rem !important;
+        padding-left: 6% !important;
+        padding-right: 6% !important;
+        padding-top: 15% !important;
+        padding-bottom: 10% !important;
+        min-height: 35vh !important;
+    }
+     #splash-container #main-canvas .home-page-bg-banner-container .home-page-bg-banner, #splash-container #main-canvas .home-page-bg-banner-container .home-page-bg-banner{
+        background-position: center center !important;
+        background-size: auto 100% !important;
+        background-repeat: no-repeat !important; 
+          background-attachment: fixed !important;
+     }
+}
+
+@media only screen and (min-width: 992px) and (max-width: 1198.99px) {
+   #splash-container #main-canvas .home-page-bg-banner-container, #splash-container #main-canvas .home-page-bg-banner-container{
+        margin-left: 0% !important;
+        margin-right: 0% !important;
+        margin-bottom: 0% !important;
+        padding-left: 6% !important;
+        padding-right: 6% !important;
+        padding-top: 5% !important;
+        padding-bottom: 10% !important;
+        min-height: 35vh !important;
+    }
+     #splash-container #main-canvas .home-page-bg-banner-container .home-page-bg-banner, #splash-container #main-canvas .home-page-bg-banner-container .home-page-bg-banner{
+        background-position: center center !important;
+        background-repeat: no-repeat !important; 
+     }
+}
+
+
+.about-image-text-border{
+    border-radius: 0px 0px 10px 10px;
+}
+
+.speaker-tile-hover{
+    display: none;
+    height: 100%;
+}
+.speaker-container:hover .speaker-tile-hover{
+    display: block !important;
+    cursor: pointer;
+}
+.speaker-container:hover .speaker-image-zoom{
+    transform: scale(1.0);
+    cursor: pointer;
+}
+.speaker-image-zoom{
+   transform: scale(0.8); 
+}
+
+
+@media screen and (max-width: 992px) {
+    .speaker-center{
+        display: inline-block !important;
+    }
+}
+
+.agenda-shadow{
+    border: 1px solid #949494;
+    box-shadow: 4px 4px 10px 1px rgba(0, 0, 0, 0.15);
+}
+
+.SuiCheckbox .SuiCheckbox__label{
+    font-size: 14px;
+    color: #5F5F5F;
+}
+
+.SuiTextInput-field{
+    border-radius: 5px !important;
+}
+
+.city-page-form .bNtWeO{
+    padding: 0 !important;
+}
+
+.SuiCheckbox__input:checked ~ .SuiCheckbox__checkbox .SuiCheckbox__indicator {
+    transition-delay: 0ms;
+    opacity: 1;
+}
+
+.SuiCheckbox__input:checked ~ .SuiCheckbox__checkbox .SuiCheckbox__indicator::before {
+    border-radius: inherit;
+    transform: none;
+}
+
+.SuiCheckbox__indicator::before{
+    background-color: rgb(0 0 0) !important; 
+}
+
+.tick-align{
+    margin-left: 10px; position: relative; top: -10px;
+}
+
+
+.SuiContainer [data-qa="QuestionNode__Attending to Networking Drinks"] {
+  border-top: 1px solid #d8d8d8;
+  padding-top: 1em;
+}
+
+
+
+.SuiLabel{
+	font-size: 0 !important;
+}
+
+.SuiContainer [data-qa="QuestionView"] a{
+    border-bottom: 1px solid;
+}
+
+.icon-f-rte-delete:before {
+    content: 'X';
+    font-family: Arial;
+    font-size: 1.5rem;
+}
+
+.splash-x:focus {
+    outline-style: unset !important;
+}
+
+.SuiDropdown-select {
+    text-overflow: ellipsis;
+}
+.SuiField--dropdown .SuiField__current{
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.home-page-cards{
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+}
+
+.vertical-top{
+    vertical-align: top;
+}

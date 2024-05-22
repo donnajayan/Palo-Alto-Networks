@@ -1,0 +1,122 @@
+$(document).ready(function() {
+
+    // Custom event polyfill for IE 11 support
+    (function () {
+        if (window.CustomEvent) return false;
+        function CustomEvent(event, params) {
+          params = params || { 
+           bubbles: false, cancelable: false, detail: undefined 
+          }; 
+          var evt = document.createEvent( 'CustomEvent' );
+          evt.initCustomEvent( 
+            event, params.bubbles, params.cancelable, params.detail
+          );
+          return evt;
+        }
+        CustomEvent.prototype = window.Event.prototype;
+        window.CustomEvent = CustomEvent;
+      })();
+
+    var qs = {},
+        e,
+        q,
+        d = function(s) {
+            return decodeURIComponent(s.replace(/\+/g, " "));
+        },
+        r = /([^&=]+)=?([^&]*)/g;
+    while ((e = r.exec(window.location.search.substring(1)))) {
+        q = q || e[1].indexOf("utm_") >= 0;
+        qs[d(e[1])] = d(e[2]);
+    }
+    if (!q) {
+        // set utmz from cookie if not in querytring
+        var utm = {
+            csr: "source",
+            cmd: "medium",
+            ccn: "campaign",
+            ctr: "term",
+            cct: "content"
+        };
+
+        var ks = new Array();
+        for (var k in utm) {
+            ks.push(k);
+        }
+        r = new RegExp("utm(" + ks.join("|") + ")=([^|;]+)?", "g");
+        while ((e = r.exec(document.cookie))) {
+        	qs["utm_" + utm[e[1]]] = d(e[2]); // store in array
+		}
+		
+		if (window.splash) {
+			var formFields = window.splash.server._event.custom_rsvp_fields;
+			var prePopulateObj = [];
+			if (formFields && formFields.length > 0) {
+				$.each(formFields, function() {
+					var formField = this;
+					var itemObj = {};
+			        itemObj.name = formField.code;
+	    		    if (formField.type == "hidden") {
+	        			itemObj.type = "input";
+	        		}else {
+	        			return;
+	        		}
+					switch (formField.code) {
+						case "utm_source":
+							if(qs["utm_source"]){
+								itemObj.value = qs["utm_source"];
+								itemObj.name = formField._formBuilderNodeId;
+								prePopulateObj.push(itemObj);
+							}
+							break;
+						case "utm_medium":
+							if(qs["utm_medium"]){
+								itemObj.value = qs["utm_medium"];
+								itemObj.name = formField._formBuilderNodeId;
+								prePopulateObj.push(itemObj);
+							}
+							break;
+						case "utm_campaign":
+							if(qs["utm_campaign"]){
+								itemObj.value = qs["utm_campaign"];
+								itemObj.name = formField._formBuilderNodeId;
+								prePopulateObj.push(itemObj);
+							}
+							break;
+						case "utm_term":
+							if(qs["utm_term"]){
+								itemObj.value = qs["utm_term"];
+								itemObj.name = formField._formBuilderNodeId;
+								prePopulateObj.push(itemObj);
+							}
+							break;
+						case "utm_content":
+							if(qs["utm_content"]){
+								itemObj.value = qs["utm_content"];
+								itemObj.name = formField._formBuilderNodeId;
+								prePopulateObj.push(itemObj);
+							}
+							break;
+						default:
+				    		break;
+					}
+				});
+
+				setTimeout(function(){ $.each(prePopulateObj, function() {
+	        		var item = this;
+	        		var setValue = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+	        		var e;	       	        	  				 
+	        		if(item.type === "input") {
+	        			var field =  document.querySelectorAll("input[name='" + item.name + "']")[0];	        	  				      	
+	        			if (field) {
+	        	  			setValue.call(field, item.value);
+		        			e = new CustomEvent("change", { bubbles: true });
+		        			field.dispatchEvent(e);
+		        			e = new CustomEvent("click", { bubbles: true });
+                            field.dispatchEvent(e);
+	        			}
+ 					} 	        	  				   	        	  				
+	    		}); }, 6000);
+			}
+		}
+    }
+})

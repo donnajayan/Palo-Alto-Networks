@@ -1,0 +1,414 @@
+$(window).on('load', function(){  
+  	var aemHostURL = "https://www.paloaltonetworks.com";
+    // Prepopulate fields if user is authenticated 
+     $.ajax({
+        type: "GET",
+        crossDomain: true,
+        url: aemHostURL + "/apps/pan/public/reglet.getuserprofile.json",
+        xhrFields: {withCredentials: true},
+        dataType: "json",
+        success: function(data, textStatus, jqXHR) {         
+            if (data.success && data.authenticatedUser) {    
+            		console.log("hostname:" + location.hostname);
+	            	if (location.hostname == 'start.paloaltonetworks.com' || location.hostname == 'startsandbox.paloaltonetworks.com') {
+	                var dataObj = {};                        
+	                dataObj.FirstName = data.firstName;
+	                dataObj.LastName = data.lastName;
+	                dataObj.Email = data.email;
+	                dataObj.Company = data.companyName;
+	                dataObj.Job_Level__c = data.jobLevel;
+	                dataObj.Job_Role__c = data.jobRole;
+	                dataObj.Phone = data.phone;
+	                dataObj.Country = data.country;
+	                if (dataObj.Country && dataObj.Country == 'Canada') {
+	                		dataObj.State = data.province;
+	            		} else {
+	            			dataObj.State = data.state;
+	            		}
+	                dataObj.zip = data.zip;
+	                
+	                var formId = $("input[name='formid']").val();
+	                var mktoForm = MktoForms2.getForm(formId);
+	                mktoForm.setValues(dataObj); 
+	                
+	                // analytics tracking for form pre-population
+	                if (typeof webData != "undefined" && webData) {                		
+	                		webData.formAutoPop = true;
+	                }
+	                
+	                var form = $("form[id='mktoForm_" + formId + "']");
+		             
+	                // register onchange handler on form fields
+		        		form.on('change', 'input,select', function(e) {		                				                	                				                		
+		            	    var fieldList = [];
+		                	if (typeof webData != "undefined" && webData) {
+		                		if (webData.formFieldList && webData.formFieldList.length > 0) {
+		                			fieldList = webData.formFieldList.split(':');
+		                		}			                		
+		                }			                	
+		                switch (e.target.name) {	                		
+		                		case "Email":
+		                			updateChangedFieldList(fieldList, dataObj, 'Email', e);			                						                			
+		                			break;
+		                				                		
+		                		case "FirstName":			                		
+		                			updateChangedFieldList(fieldList, dataObj, 'FirstName', e);			                						                			
+		                			break;
+		                				                		
+		                		case "LastName":			                		
+		                			updateChangedFieldList(fieldList, dataObj, 'LastName', e);			                						                			
+		                			break;
+		                				                		
+		                		case "Phone":			                		
+		                			updateChangedFieldList(fieldList, dataObj, 'Phone', e);			                						                			
+		                			break;
+		                			
+		                		case "Company":			                		
+		                			updateChangedFieldList(fieldList, dataObj, 'Company', e);			                						                			
+		                			break;
+		                			
+		                		case "Job_Role__c":			                		
+		                			updateChangedFieldList(fieldList, dataObj, 'Job_Role__c', e);			                						                			
+		                			break;
+		                			
+		                		case "Job_Level__c":			                		
+		                			updateChangedFieldList(fieldList, dataObj, 'Job_Level__c', e);			                						                			
+		                			break;
+		                			
+		                		case "Country":			                		
+		                			updateChangedFieldList(fieldList, dataObj, 'Country', e);		
+		                			if (e.target.value != 'Canada' && e.target.value != 'United States') {	                						                			
+		                				index = fieldList.indexOf('State');
+		                				if (index != -1) {
+		                					fieldList.splice(index, 1);
+		                				}
+		                			}
+		                			break;
+		                				                		
+		                		case "State":
+		                			var country = form.find("select[name='Country']");
+		                			if (country && (country.val() == 'Canada' || country.val() == 'United States')) {
+		                				updateChangedFieldList(fieldList, dataObj, 'State', e);	
+		                			}			                					                						                			
+		                			break;
+		                				                		
+		                		case "zip":				                		
+		                			updateChangedFieldList(fieldList, dataObj, 'zip', e);			                						                			
+		                			break;
+		                			
+		                		default:
+		                			break;	                				                			               		               
+		                }			                	               
+		                	if (typeof webData != "undefined" && webData) {
+		                		 if (fieldList.length > 0) {
+		                			 webData.formFieldList = fieldList.join(':');
+		                		 } else {
+		                			 delete webData.formFieldList;
+		                		 }
+		                	}			                		
+		                console.log("fieldList: " + fieldList.join(':'));
+		            });                                
+	            } else if (location.hostname == 'register.paloaltonetworks.com') {
+        	  			if (window.splash) {
+	        	  			var formFields = window.splash.server._event.custom_rsvp_fields;
+	        	  			var prePopulateObj = [];
+	        	  			var fieldObj = {};
+	        	  			var fieldValueObj = {};
+	        	  			if (formFields && formFields.length > 0) {
+	        	  				$.each(formFields, function() {
+	        	  					var formField = this;
+	        	  					var itemObj = {};
+	        	  					itemObj.name = formField.code;	        	  						        	  			        	  					
+	        	 	                if (formField.type == "text") {
+	        	 	                		itemObj.type = "input";
+	        	 	                } else if (formField.type == "email") {
+	        	 	                		itemObj.type = "input";
+	        	 	                } else if (formField.type == "select") {
+	        	 	                		itemObj.type = "select";
+	        	 	                } else {
+	        	 	                		return;
+	        	 	                }
+	        	 	                var countryFieldName = "";
+	        	  					switch (formField.code) {	                		
+				                		case "First Name":
+				                			itemObj.value = data.firstName;
+				                			fieldObj[itemObj.name] = "FirstName";
+				                			fieldValueObj["FirstName"] = itemObj.value;
+				                			prePopulateObj.push(itemObj);
+				                			break;
+				                				                		
+				                		case "Last Name":	
+				                			itemObj.value = data.lastName;
+				                			fieldObj[itemObj.name] = "LastName";		
+				                			fieldValueObj["LastName"] = itemObj.value;
+				                			prePopulateObj.push(itemObj);
+				                			break;
+				                				                		
+				                		case "Email":	
+				                			itemObj.value = data.email;
+				                			fieldObj[itemObj.name] = "Email";
+				                			fieldValueObj["Email"] = itemObj.value;
+				                			prePopulateObj.push(itemObj);
+				                			break;
+				                				                		
+				                		case "Company":	
+				                			itemObj.value = data.companyName;
+				                			fieldObj[itemObj.name] = "Company";	
+				                			fieldValueObj["Company"] = itemObj.value;
+				                			prePopulateObj.push(itemObj);
+				                			break;
+				                			
+				                		case "Job Level":			                		
+				                			itemObj.value = data.jobLevel;
+				                			fieldObj[itemObj.name] = "Job_Level__c";		
+				                			fieldValueObj["Job_Level__c"] = itemObj.value;
+				                			prePopulateObj.push(itemObj);
+				                			break;
+				                			
+				                		case "Job Function":	
+				                			itemObj.value = data.jobRole;
+				                			fieldObj[itemObj.name] = "Job_Role__c";	
+				                			fieldValueObj["Job_Role__c"] = itemObj.value;
+				                			prePopulateObj.push(itemObj);
+				                			break;
+				                			
+				                		case "Country":	
+				                			itemObj.value = data.country;
+				                			fieldObj[itemObj.name] = "Country";	
+				                			fieldValueObj["Country"] = itemObj.value;
+				                			countryFieldName = itemObj.name;
+				                			prePopulateObj.push(itemObj);
+				                			break;
+				                			
+				                		case "State":			                						                							                			
+				                			if (data.country && data.country == 'Canada') {
+				                				itemObj.value = data.province;				                				
+			        	 	            		} else {
+			        	 	            			itemObj.value = data.state;					                				
+			        	 	            		}				       
+				                			fieldObj[itemObj.name] = "State";
+				                			fieldValueObj["State"] = itemObj.value;
+				                			prePopulateObj.push(itemObj);
+				                			break;
+				                				                		
+				                		case "Zip Code (If the country is United States/Canada/Germany/Australia)":
+				                			itemObj.value = data.zip;
+				                			fieldObj[itemObj.name] = "zip";	 
+				                			fieldValueObj["zip"] = itemObj.value;
+				                			prePopulateObj.push(itemObj);
+				                			break;
+				                				                		
+				                		case "Phone Number":				                		
+				                			itemObj.value = data.phone;
+				                			fieldObj[itemObj.name] = "Phone"; 
+				                			fieldValueObj["Phone"] = itemObj.value;
+				                			prePopulateObj.push(itemObj);
+				                			break;				                							                		
+				                			
+				                		default:
+				                			break;	                				                			               		               
+	        	  					}		        	  						        	  					
+	        	  					
+	        	  				});
+	        	  				$.each(prePopulateObj, function() {
+	        	  					var item = this;
+	        	  					
+	        	  				    var setValue = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+	        	  				    var e;	       	        	  				 
+	        	  				    if(item.type === "input") {
+	        	  				      	var field =  document.querySelectorAll("[data-field-name = '" + item.name + "'] input")[0];	        	  				      	
+	        	  						if (field) {
+	        	  							setValue.call(field, item.value);
+		        	  				        e = new Event(item.type, { bubbles: true });
+		        	  				        field.dispatchEvent(e);
+	        	  						}
+	        	  				        
+	        	  				    } else if(item.type === 'select') {
+	        	  				    		var field = document.querySelectorAll("[data-field-name = '" + item.name + "'] select")[0];
+	        	  				    		if (field) {
+	        	  				    			 field.value = item.value;
+	     	        	  				     e = new Event('change', { bubbles: true });
+	     	        	  				     field.dispatchEvent(e);
+	        	  				    		}
+	        	  				       
+	        	  				    }	        	  				   	        	  				
+	        	  				});
+	        	  				
+	        	  				
+	        	  				// analytics tracking for form pre-population
+	        	                if (typeof webData != "undefined" && webData) {                		
+	        	                		webData.formAutoPop = true;
+	        	                }
+	        	                
+	        	                var form = $("form");
+	        	                var fieldList = [];
+	        	                
+	        	                // register onchange handler on form fields
+	        		        		form.on('change', 'input', function(e) {		                				                	                				                		
+	        		            	    
+	        		                	if (typeof webData != "undefined" && webData) {
+	        		                		if (webData.formFieldList && webData.formFieldList.length > 0) {
+	        		                			fieldList = webData.formFieldList.split(':');
+	        		                		}			                		
+	        		                }		
+	        		                	var name = $(this).closest("[data-field-name]").attr("data-field-name");
+	        		                	var fieldName = fieldObj[name];
+	        		                	console.log("fieldName:" + name);
+	        		                	console.log(" Mapped fieldName:" + fieldName);
+	        		                switch (fieldName) {	                		
+	        		                		case "Email":
+	        		                			updateChangedFieldList(fieldList, fieldValueObj, 'Email', e);			                						                			
+	        		                			break;
+	        		                				                		
+	        		                		case "FirstName":			                		
+	        		                			updateChangedFieldList(fieldList, fieldValueObj, 'FirstName', e);			                						                			
+	        		                			break;
+	        		                				                		
+	        		                		case "LastName":			                		
+	        		                			updateChangedFieldList(fieldList, fieldValueObj, 'LastName', e);			                						                			
+	        		                			break;
+	        		                				                		
+	        		                		case "Phone":			                		
+	        		                			updateChangedFieldList(fieldList, fieldValueObj, 'Phone', e);			                						                			
+	        		                			break;
+	        		                			
+	        		                		case "Company":			                		
+	        		                			updateChangedFieldList(fieldList, fieldValueObj, 'Company', e);			                						                			
+	        		                			break;	        		                				        		                		
+	        		                				                		
+	        		                		case "zip":				                		
+	        		                			updateChangedFieldList(fieldList, fieldValueObj, 'zip', e);			                						                			
+	        		                			break;
+	        		                			
+	        		                		default:
+	        		                			break;	                				                			               		               
+	        		                }			                	               
+	        		                	if (typeof webData != "undefined" && webData) {
+	        		                		 if (fieldList.length > 0) {
+	        		                			 webData.formFieldList = fieldList.join(':');
+	        		                		 } else {
+	        		                			 delete webData.formFieldList;
+	        		                		 }
+	        		                	}			                		
+	        		                console.log("fieldList: " + fieldList.join(':'));
+	        		            });    
+	        		        		
+	        		        		
+	        		        		//  Desktop select dropdowns detection
+	        		        		var countryValueObj  = {};
+	        		        		countryValueObj.value = data.country ? data.country : "";
+	        		        		$("body").on("click", "div.SuiMenuItem", function (e) {
+	        		        		    var optValue  = $(this).find(".SuiMenuItem__label").text();	        		        		    	        		        		    
+	        		        		    var name = $('.SuiDropdown-select').find('option').filter(function() {
+	        		        		        return $(this).text() == optValue;
+	        		        		    }).parent().closest("[data-field-name]").attr("data-field-name");	    
+	        		        		    
+	        		        		    handleDropdownSelection(fieldList, fieldObj, fieldValueObj, name, optValue, countryValueObj);       		        		    
+	        		        		});
+	        		        		
+	        		        		// Mobile select dropdowns Detection
+	        		        		$("body").on("change", ".SuiDropdown__select--mobile", function (e) {
+	        		        		    var optValue = $(this).val();	        		        		   
+	        		        		    var name = $(this).closest("[data-field-name]").attr("data-field-name");	
+	        		        		    handleDropdownSelection(fieldList, fieldObj, fieldValueObj, name, optValue, countryValueObj);  
+	        		        		});
+
+	        	  				
+	        	  			}
+        	  			}	        	  		
+	            	}
+	         }        
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.log("Could not retrieve user profile");               
+        }
+    });
+              
+ });
+
+function updateChangedFieldList(changedFieldList, dataObj, objFieldName, event) {
+	var value = '';
+	if (event.target.type == 'checkbox') {
+		value = event.target.checked;
+	} else {
+		value = event.target.value;
+	}
+	if (dataObj[objFieldName] && dataObj[objFieldName] != value) {
+		if (changedFieldList.indexOf(objFieldName) == -1) {
+			changedFieldList.push(objFieldName);
+		}
+	} else {
+		var index = changedFieldList.indexOf(objFieldName);
+		if (index != -1) {
+			changedFieldList.splice(index, 1);
+		}
+	}
+}
+
+
+function updateSelectChangedFieldList(changedFieldList, dataObj, objFieldName, value) {
+	
+	if (dataObj[objFieldName] && dataObj[objFieldName] != value) {
+		if (changedFieldList.indexOf(objFieldName) == -1) {
+			changedFieldList.push(objFieldName);
+		}
+	} else {
+		var index = changedFieldList.indexOf(objFieldName);
+		if (index != -1) {
+			changedFieldList.splice(index, 1);
+		}
+	}
+}
+
+
+function handleDropdownSelection(fieldList, fieldObj, fieldValueObj, name, optValue, countryValueObj) {
+	
+	if (typeof webData != "undefined" && webData) {
+		if (webData.formFieldList && webData.formFieldList.length > 0) {
+			fieldList = webData.formFieldList.split(':');
+		}			                		
+	}
+    
+	var fieldName = fieldObj[name];
+	console.log("fieldName:" + name);
+	console.log(" Mapped fieldName:" + fieldName);
+	switch (fieldName) {	                			        		                
+			
+		case "Job_Role__c":			                		
+			updateSelectChangedFieldList(fieldList, fieldValueObj, 'Job_Role__c', optValue);			                						                			
+			break;
+			
+		case "Job_Level__c":			                		
+			updateSelectChangedFieldList(fieldList, fieldValueObj, 'Job_Level__c', optValue);			                						                			
+			break;
+			
+		case "Country":			   
+			countryValueObj.value = optValue;
+			updateSelectChangedFieldList(fieldList, fieldValueObj, 'Country', optValue);		
+			if (optValue != 'Canada' && optValue != 'United States') {	                						                			
+				index = fieldList.indexOf('State');
+				if (index != -1) {
+					fieldList.splice(index, 1);
+				}
+			}
+			break;
+				                		
+		case "State":	        
+			console.log("countryValue:" + countryValueObj.value);
+			if (countryValueObj.value  == 'Canada' || countryValueObj.value  == 'United States') {
+				updateSelectChangedFieldList(fieldList, fieldValueObj, 'State', optValue);	
+			}			                					                						                			
+			break;	        		                				                			        		                		
+			
+		default:
+			break;	                				                			               		               
+	}			                	               
+	if (typeof webData != "undefined" && webData) {
+		 if (fieldList.length > 0) {
+			 webData.formFieldList = fieldList.join(':');
+		 } else {
+			 delete webData.formFieldList;
+		 }
+	}			                		
+	console.log("fieldList: " + fieldList.join(':'));
+}
